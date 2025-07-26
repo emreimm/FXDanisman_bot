@@ -1,36 +1,23 @@
-import logging
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+from telegram import Update
+from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, ContextTypes, filters
 
-# Buraya senin bot tokenin
 TOKEN = "7330074726:AAHbM-uzg6HVpTD49y1lM99DuReJfeo9-eg"
 
-# Loglama ayarları
-logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                    level=logging.INFO)
-
-logger = logging.getLogger(__name__)
-
 # /start komutu
-def start(update, context):
-    update.message.reply_text("✅ Bot çalışıyor! Buradan mesaj gönderebilirsin.")
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("✅ Bot çalışıyor! Buradan mesaj gönderebilirsin.")
 
 # Her mesaja cevap
-def echo(update, context):
-    update.message.reply_text(f"Mesajını aldım: {update.message.text}")
-
-def error(update, context):
-    logger.warning('Update "%s" caused error "%s"', update, context.error)
+async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text(f"Mesajını aldım: {update.message.text}")
 
 def main():
-    updater = Updater(TOKEN, use_context=True)
-    dp = updater.dispatcher
+    app = ApplicationBuilder().token(TOKEN).build()
 
-    dp.add_handler(CommandHandler("start", start))
-    dp.add_handler(MessageHandler(Filters.text & ~Filters.command, echo))
-    dp.add_error_handler(error)
+    app.add_handler(CommandHandler("start", start))
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, echo))
 
-    updater.start_polling()
-    updater.idle()
+    app.run_polling()
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
